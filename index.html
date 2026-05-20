@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz — Criptografia e Segurança de Dados</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-dark:   #1a3a5c;
+      --blue-mid:    #2563a8;
+      --blue-light:  #dbeafe;
+      --blue-pale:   #f0f6ff;
+      --green:       #166534;
+      --green-bg:    #dcfce7;
+      --red:         #991b1b;
+      --red-bg:      #fee2e2;
+      --text:        #1e293b;
+      --text-soft:   #475569;
+      --border:      #cbd5e1;
+      --white:       #ffffff;
+      --radius:      12px;
+      --shadow:      0 4px 24px rgba(30,58,138,.10);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #eef3fb;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      background: var(--blue-dark);
+      color: #fff;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header .logo {
+      width: 40px; height: 40px;
+      background: var(--blue-mid);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; line-height: 1.3; }
+    header p  { font-size: .78rem; opacity: .75; margin-top: 2px; }
+
+    /* ── MAIN CARD ── */
+    main {
+      width: 100%; max-width: 720px;
+      padding: 28px 16px 48px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 40px;
+    }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      margin-bottom: 28px;
+    }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: .8rem; color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+    .progress-bar-bg {
+      height: 6px; background: var(--border);
+      border-radius: 99px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; background: var(--blue-mid);
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    /* ── QUESTION ── */
+    .question-number {
+      font-size: .75rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--blue-mid);
+      margin-bottom: 10px;
+    }
+    .question-text {
+      font-size: 1.1rem; font-weight: 600;
+      line-height: 1.55; color: var(--text);
+      margin-bottom: 26px;
+    }
+
+    /* ── OPTIONS ── */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+
+    .option-btn {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      cursor: pointer;
+      text-align: left;
+      font-size: .95rem; color: var(--text);
+      transition: border-color .15s, background .15s, transform .1s;
+      line-height: 1.45;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--blue-mid);
+      background: var(--blue-pale);
+      transform: translateX(2px);
+    }
+    .option-btn .letter {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--blue-light);
+      color: var(--blue-mid);
+      font-size: .8rem; font-weight: 700;
+      display: grid; place-items: center;
+      margin-top: 1px;
+    }
+
+    .option-btn.correct {
+      border-color: #16a34a;
+      background: var(--green-bg);
+    }
+    .option-btn.correct .letter {
+      background: #16a34a; color: #fff;
+    }
+    .option-btn.wrong {
+      border-color: #dc2626;
+      background: var(--red-bg);
+    }
+    .option-btn.wrong .letter {
+      background: #dc2626; color: #fff;
+    }
+    .option-btn:disabled { cursor: default; transform: none; }
+
+    /* ── FEEDBACK ── */
+    .feedback {
+      margin-top: 22px;
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-size: .9rem;
+      line-height: 1.55;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.correct-fb {
+      background: var(--green-bg);
+      border-left: 4px solid #16a34a;
+      color: var(--green);
+    }
+    .feedback.wrong-fb {
+      background: var(--red-bg);
+      border-left: 4px solid #dc2626;
+      color: var(--red);
+    }
+    .feedback strong { display: block; margin-bottom: 4px; font-size: .95rem; }
+
+    /* ── NEXT BUTTON ── */
+    .btn-next {
+      margin-top: 28px;
+      display: none;
+      width: 100%;
+      padding: 14px;
+      background: var(--blue-mid);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-next:hover { background: var(--blue-dark); transform: translateY(-1px); }
+    .btn-next.show  { display: block; }
+
+    /* ── RESULT SCREEN ── */
+    #result { display: none; }
+    #result .score-ring {
+      margin: 0 auto 28px;
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      border: 8px solid var(--blue-light);
+      display: grid; place-items: center;
+      position: relative;
+    }
+    #result .score-ring svg {
+      position: absolute; inset: -8px;
+      width: calc(100% + 16px); height: calc(100% + 16px);
+      transform: rotate(-90deg);
+    }
+    #result .score-ring svg circle {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+    #result .score-ring svg .track  { stroke: var(--blue-light); }
+    #result .score-ring svg .fill   {
+      stroke: var(--blue-mid);
+      transition: stroke-dashoffset 1s ease;
+    }
+    #result .score-number {
+      font-size: 2rem; font-weight: 800;
+      color: var(--blue-dark); line-height: 1;
+    }
+    #result .score-label {
+      font-size: .75rem; color: var(--text-soft);
+      text-align: center;
+    }
+
+    #result h2 {
+      text-align: center;
+      font-size: 1.4rem; color: var(--blue-dark);
+      margin-bottom: 6px;
+    }
+    #result .result-sub {
+      text-align: center; color: var(--text-soft);
+      font-size: .9rem; margin-bottom: 30px;
+    }
+    #result .review { display: flex; flex-direction: column; gap: 14px; }
+    #result .review-item {
+      border-radius: 10px; padding: 16px 18px;
+      border-left: 4px solid var(--border);
+      background: var(--blue-pale);
+    }
+    #result .review-item.ok  { border-color: #16a34a; background: var(--green-bg); }
+    #result .review-item.bad { border-color: #dc2626; background: var(--red-bg); }
+    #result .review-item .ri-q {
+      font-size: .85rem; font-weight: 600;
+      color: var(--text); margin-bottom: 4px;
+    }
+    #result .review-item .ri-a {
+      font-size: .82rem; color: var(--text-soft);
+    }
+    #result .review-item .ri-a span { color: var(--text); font-weight: 500; }
+
+    .btn-restart {
+      margin-top: 28px;
+      display: block; width: 100%;
+      padding: 14px;
+      background: var(--blue-dark); color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-restart:hover { background: var(--blue-mid); }
+
+    /* ── INTRO SCREEN ── */
+    #intro {
+      text-align: center;
+    }
+    #intro .intro-icon {
+      font-size: 3.5rem; margin-bottom: 16px;
+    }
+    #intro h2 {
+      font-size: 1.5rem; color: var(--blue-dark);
+      margin-bottom: 10px;
+    }
+    #intro p {
+      color: var(--text-soft); font-size: .95rem;
+      line-height: 1.6; max-width: 480px; margin: 0 auto 24px;
+    }
+    #intro .meta {
+      display: flex; justify-content: center; gap: 24px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    #intro .meta-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: .85rem; color: var(--text-soft);
+    }
+    #intro .meta-item strong { color: var(--text); }
+    .btn-start {
+      padding: 14px 48px;
+      background: var(--blue-mid); color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-start:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer {
+      width: 100%; text-align: center;
+      padding: 16px; font-size: .78rem;
+      color: var(--text-soft); border-top: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    @media (max-width: 520px) {
+      .card { padding: 24px 20px; }
+      .question-text { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🔐</div>
+  <div>
+    <h1>Criptografia e Segurança de Dados</h1>
+    <p>Quiz de Fixação — Projeto de Extensão</p>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+
+    <!-- INTRO -->
+    <div id="intro">
+      <div class="intro-icon">🛡️</div>
+      <h2>Quiz de Fixação</h2>
+      <p>Teste seus conhecimentos sobre criptografia moderna, algoritmos, protocolos de segurança e as tecnologias que protegem os dados no mundo digital.</p>
+      <div class="meta">
+        <div class="meta-item">📋 <span><strong>10</strong> questões</span></div>
+        <div class="meta-item">🎯 <span>Múltipla escolha</span></div>
+        <div class="meta-item">💬 <span>Feedback em cada resposta</span></div>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">Iniciar Quiz</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" style="display:none">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="progress-text">Questão 1 de 10</span>
+          <span id="score-text">0 corretas</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="question-number" id="q-number">Questão 1</div>
+      <div class="question-text"  id="q-text"></div>
+      <div class="options"        id="q-options"></div>
+
+      <div class="feedback" id="feedback"></div>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Próxima questão →</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result">
+      <div class="score-ring">
+        <svg viewBox="0 0 130 130">
+          <circle class="track" cx="65" cy="65" r="57"/>
+          <circle class="fill"  cx="65" cy="65" r="57" id="ring-fill"/>
+        </svg>
+        <div>
+          <div class="score-number" id="final-score">0/10</div>
+          <div class="score-label">acertos</div>
+        </div>
+      </div>
+
+      <h2 id="result-title">Resultado</h2>
+      <p class="result-sub" id="result-sub"></p>
+
+      <div class="review" id="review-list"></div>
+      <button class="btn-restart" onclick="restartQuiz()">🔄 Tentar novamente</button>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  Projeto de Extensão — Criptografia Explicada e Aplicada à Segurança de Dados
+</footer>
+
+<script>
+const questions = [
+  {
+    text: "Qual é a principal diferença entre criptografia simétrica e assimétrica?",
+    options: [
+      "A simétrica usa duas chaves diferentes, enquanto a assimétrica usa apenas uma.",
+      "A simétrica usa uma única chave compartilhada; a assimétrica usa um par de chaves pública e privada.",
+      "A simétrica é sempre mais segura do que a assimétrica.",
+      "A assimétrica é usada apenas para armazenamento local de dados."
+    ],
+    correct: 1,
+    feedbacks: [
+      "Incorreto. É o contrário: a criptografia simétrica usa uma única chave compartilhada entre os participantes.",
+      "Correto! Na criptografia simétrica (ex.: AES), uma única chave secreta é usada para cifrar e decifrar. Na assimétrica (ex.: RSA, ECC), existe um par de chaves matematicamente relacionadas — uma pública e uma privada.",
+      "Incorreto. O nível de segurança depende do tamanho da chave e do algoritmo usado, não do tipo de criptografia.",
+      "Incorreto. A criptografia assimétrica é amplamente usada em comunicações seguras, como no protocolo TLS, não apenas em armazenamento."
+    ]
+  },
+  {
+    text: "Qual algoritmo substituiu o DES como padrão global de criptografia simétrica a partir dos anos 2000?",
+    options: [
+      "RSA (Rivest-Shamir-Adleman)",
+      "SHA-256",
+      "ECC (Elliptic Curve Cryptography)",
+      "AES (Advanced Encryption Standard)"
+    ],
+    correct: 3,
+    feedbacks: [
+      "Incorreto. O RSA é um algoritmo assimétrico, não substituto do DES para cifragem em massa.",
+      "Incorreto. SHA-256 é uma função de hash unidirecional, não um algoritmo de cifragem simétrica.",
+      "Incorreto. O ECC é um algoritmo assimétrico, voltado para assinaturas digitais e troca de chaves.",
+      "Correto! O AES tornou-se o padrão simétrico global indiscutível. Ele opera com blocos de 128 bits e suporta chaves de 128, 192 ou 256 bits, processadas em 10, 12 ou 14 rodadas matemáticas, respectivamente."
+    ]
+  },
+  {
+    text: "Qual pilar da segurança da informação garante que um usuário não possa negar, posteriormente, a autoria de uma ação realizada em um sistema?",
+    options: [
+      "Confidencialidade",
+      "Integridade",
+      "Disponibilidade",
+      "Irretratabilidade (Não-Repúdio)"
+    ],
+    correct: 3,
+    feedbacks: [
+      "Incorreto. A Confidencialidade garante que somente pessoas autorizadas tenham acesso aos dados — não tem relação com negar autoria.",
+      "Incorreto. A Integridade verifica que os dados não foram alterados indevidamente, mas não impede a negação de autoria.",
+      "Incorreto. A Disponibilidade assegura que os recursos estejam acessíveis quando necessário.",
+      "Correto! A Irretratabilidade (ou Não-Repúdio) cria um vínculo criptográfico incontestável entre o autor e a ação, utilizando assinaturas digitais para impedir que alguém negue ter realizado uma operação."
+    ]
+  },
+  {
+    text: "Uma função de hash unidirecional como SHA-256 é projetada para garantir duas propriedades fundamentais de segurança. Quais são elas?",
+    options: [
+      "Reversibilidade e compressão de dados.",
+      "Uso de chave pública e geração de texto cifrado de tamanho variável.",
+      "Irreversibilidade e resistência a colisões.",
+      "Autenticação de usuário e distribuição segura de chaves."
+    ],
+    correct: 2,
+    feedbacks: [
+      "Incorreto. Funções de hash são irreversíveis por definição — não é possível recuperar a entrada a partir do hash resultante.",
+      "Incorreto. Funções de hash não usam chaves e sempre geram uma saída de tamanho fixo e predefinido, independentemente do tamanho da entrada.",
+      "Correto! A irreversibilidade impede derivar os dados originais a partir do hash. A resistência a colisões torna virtualmente impossível que duas entradas diferentes produzam o mesmo hash — um fenômeno chamado 'efeito avalanche' garante que qualquer mínima alteração na entrada produza um hash completamente diferente.",
+      "Incorreto. Essas são funções relacionadas a protocolos de autenticação e troca de chaves, não características de funções de hash."
+    ]
+  },
+  {
+    text: "Qual é a principal vantagem da Criptografia de Curva Elíptica (ECC) em relação ao RSA, tornando-a especialmente adequada para dispositivos móveis e IoT?",
+    options: [
+      "O ECC é mais antigo e amplamente testado que o RSA.",
+      "O ECC oferece segurança equivalente ao RSA utilizando chaves significativamente menores.",
+      "O ECC é um algoritmo simétrico e, por isso, mais rápido na cifragem de grandes volumes de dados.",
+      "O ECC elimina completamente a necessidade de gerenciamento de chaves."
+    ],
+    correct: 1,
+    feedbacks: [
+      "Incorreto. O RSA surgiu em 1977, bem antes do ECC, que foi desenvolvido posteriormente justamente para contornar as exigências de hardware do RSA.",
+      "Correto! Para 128 bits de força criptográfica equivalente, o RSA necessita de chaves de 3072 bits, enquanto o ECC precisa de apenas 256 bits. Essa eficiência reduz drasticamente o consumo de CPU e bateria, essencial em smartphones, IoT e processadores embarcados.",
+      "Incorreto. O ECC é um algoritmo assimétrico, baseado em logaritmos discretos sobre curvas elípticas.",
+      "Incorreto. O ECC ainda requer um ciclo completo de gerenciamento de chaves — geração, distribuição, rotação e revogação."
+    ]
+  },
+  {
+    text: "Por que o modelo de Criptografia Híbrida é o paradigma dominante em protocolos como o TLS, que protege o tráfego HTTPS?",
+    options: [
+      "Porque elimina a necessidade de certificados digitais.",
+      "Porque usa apenas criptografia simétrica, mais rápida para grandes volumes de dados.",
+      "Porque combina a velocidade da criptografia simétrica (AES) com a segurança da distribuição assimétrica de chaves (RSA/ECC).",
+      "Porque é compatível apenas com o protocolo HTTP/2."
+    ],
+    correct: 2,
+    feedbacks: [
+      "Incorreto. O TLS utiliza certificados digitais (padrão X.509) como parte central de seu processo de autenticação.",
+      "Incorreto. Usar apenas criptografia simétrica criaria o problema logístico de como compartilhar a chave de forma segura num ambiente aberto como a internet.",
+      "Correto! O sistema híbrido resolve um dilema fundamental: a criptografia assimétrica é lenta para cifrar grandes volumes de dados, mas segura para distribuir chaves. Já a simétrica é extremamente rápida. No TLS, a chave de sessão AES (efêmera) é gerada e protegida com ECC/RSA, e toda a comunicação subsequente usa AES.",
+      "Incorreto. A criptografia híbrida é usada no TLS desde versões antigas, muito antes do HTTP/2 ou HTTP/3."
+    ]
+  },
+  {
+    text: "O TLS 1.3 introduziu melhorias significativas em relação ao TLS 1.2. Qual delas é considerada a mais crítica do ponto de vista de segurança?",
+    options: [
+      "O suporte nativo ao protocolo UDP em vez de TCP.",
+      "A adoção obrigatória do Perfect Forward Secrecy (PFS) e a remoção de algoritmos legados vulneráveis.",
+      "A redução do tamanho dos certificados digitais para economizar largura de banda.",
+      "A possibilidade de reutilizar a mesma chave de sessão em múltiplas conexões para melhorar a performance."
+    ],
+    correct: 1,
+    feedbacks: [
+      "Incorreto. O suporte a UDP é uma característica do HTTP/3 (via protocolo QUIC), não do TLS 1.3 em si.",
+      "Correto! O TLS 1.3 tornou o Perfect Forward Secrecy obrigatório: mesmo que a chave mestra de longo prazo seja comprometida no futuro, sessões passadas não podem ser descriptografadas, pois cada sessão usa chaves efêmeras descartadas após o uso. Algoritmos inseguros como RSA para troca de chaves e SHA-1 foram removidos.",
+      "Incorreto. O TLS 1.3 não foca em reduzir o tamanho de certificados, mas sim em otimizar o handshake (reduzindo de 2-RTT para 1-RTT) e reforçar a segurança.",
+      "Incorreto. Reutilizar a mesma chave de sessão violaria justamente o princípio do Perfect Forward Secrecy, que exige chaves efêmeras e únicas por sessão."
+    ]
+  },
+  {
+    text: "Qual é a função de um HSM (Hardware Security Module) na infraestrutura de segurança de uma organização?",
+    options: [
+      "Um software de gerenciamento de senhas armazenado na nuvem pública.",
+      "Um firewall de próxima geração que analisa o tráfego criptografado em tempo real.",
+      "Um equipamento físico especializado e isolado que gera, armazena e opera chaves criptográficas sem jamais exportá-las.",
+      "Um protocolo de autenticação multifator para acesso remoto de colaboradores."
+    ],
+    correct: 2,
+    feedbacks: [
+      "Incorreto. Um HSM é hardware físico, não software. Sua segurança deriva exatamente de ser um dispositivo isolado e dedicado.",
+      "Incorreto. Essa é a função de um DPI (Deep Packet Inspection), não de um HSM.",
+      "Correto! O HSM é um cofre eletrônico de hardware que armazena chaves críticas em microcircuitos inacessíveis. Todo cálculo criptográfico ocorre dentro do dispositivo; as chaves jamais saem em texto claro. Em caso de violação física, mecanismos de Zeroization destroem os dados automaticamente. Os HSMs seguem certificações rigorosas como FIPS 140-3.",
+      "Incorreto. Autenticação multifator (MFA) é um mecanismo de verificação de identidade, distinto da função de um HSM."
+    ]
+  },
+  {
+    text: "A LGPD (Lei Geral de Proteção de Dados Pessoais) impõe obrigações às empresas brasileiras quanto à segurança de dados. Em qual artigo ela fundamenta as exigências de medidas técnicas de proteção?",
+    options: [
+      "Artigo 5º, que define os princípios gerais do tratamento de dados.",
+      "Artigo 46, que obriga a adoção de medidas técnicas e administrativas aptas a proteger os dados pessoais.",
+      "Artigo 18, que trata dos direitos dos titulares de dados.",
+      "Artigo 65, que define as sanções administrativas aplicáveis."
+    ],
+    correct: 1,
+    feedbacks: [
+      "Incorreto. O Artigo 5º da LGPD trata das definições conceituais — o que é dado pessoal, tratamento, controlador etc.",
+      "Correto! O Artigo 46 da LGPD estabelece que os agentes de tratamento devem adotar medidas de segurança, técnicas e administrativas, capazes de proteger os dados pessoais de acessos não autorizados e de situações acidentais ou ilícitas. A criptografia é citada explicitamente pelas diretrizes da ANPD como ferramenta central de conformidade, incluindo os princípios de Privacy by Design e Privacy by Default.",
+      "Incorreto. O Artigo 18 lista os direitos dos titulares, como acesso, correção e exclusão dos dados — não as obrigações técnicas das empresas.",
+      "Incorreto. O Artigo 65 trata de datas de vigência da lei, não de sanções. As sanções estão no Capítulo VIII."
+    ]
+  },
+  {
+    text: "Por que os algoritmos RSA e ECC são considerados vulneráveis à ameaça da computação quântica, e qual é a resposta da comunidade criptográfica a isso?",
+    options: [
+      "Porque computadores quânticos consomem menos energia, tornando ataques de força bruta economicamente viáveis.",
+      "Porque o Algoritmo de Shor permite resolver, em tempo viável, os problemas matemáticos (fatoração de primos e logaritmo discreto) nos quais RSA e ECC se baseiam; a resposta é adotar a Criptografia Pós-Quântica (PQC).",
+      "Porque o comprimento máximo de chaves RSA e ECC é insuficiente para resistir a ataques clássicos modernos.",
+      "Porque computadores quânticos utilizam o mesmo algoritmo SHA-256, tornando os certificados digitais inúteis."
+    ],
+    correct: 1,
+    feedbacks: [
+      "Incorreto. A ameaça quântica não se baseia em menor consumo de energia, mas na capacidade de resolver problemas matemáticos específicos de forma exponencialmente mais rápida que computadores clássicos.",
+      "Correto! O Algoritmo de Shor, executado em um computador quântico suficientemente poderoso, consegue fatorar números primos gigantescos (base do RSA) e resolver logaritmos discretos em curvas elípticas (base do ECC) em tempo viável — quebrando a segurança desses sistemas. Em resposta, o NIST padronizou algoritmos de Criptografia Pós-Quântica (PQC) resistentes a ataques quânticos, como o ML-KEM (FIPS 203), baseados em problemas de Lattice (redes cristalinas) que nem computadores quânticos conseguem resolver eficientemente.",
+      "Incorreto. RSA e ECC com chaves adequadas (2048+ bits e 256+ bits, respectivamente) ainda resistem a ataques clássicos. A vulnerabilidade é específica ao paradigma quântico.",
+      "Incorreto. O SHA-256 é um algoritmo de hash e não é diretamente quebrado pelo Algoritmo de Shor — o Algoritmo de Grover reduz sua segurança, mas não o quebra completamente."
+    ]
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = [];
+
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display  = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+
+  document.getElementById('q-number').textContent = `Questão ${current + 1}`;
+  document.getElementById('q-text').textContent   = q.text;
+  document.getElementById('progress-text').textContent = `Questão ${current + 1} de ${total}`;
+  document.getElementById('score-text').textContent    = `${score} corretas`;
+  document.getElementById('progress-bar').style.width  = `${(current / total) * 100}%`;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+
+  document.getElementById('btn-next').className = 'btn-next';
+
+  const container = document.getElementById('q-options');
+  container.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+}
+
+function selectAnswer(index) {
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  const fb   = document.getElementById('feedback');
+  const isCorrect = index === q.correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    if (i === index && !isCorrect) btn.classList.add('wrong');
+  });
+
+  if (isCorrect) {
+    score++;
+    fb.className = 'feedback correct-fb show';
+    fb.innerHTML = `<strong>✅ Resposta correta!</strong>${q.feedbacks[index]}`;
+  } else {
+    fb.className = 'feedback wrong-fb show';
+    fb.innerHTML = `<strong>❌ Resposta incorreta.</strong>${q.feedbacks[index]}`;
+  }
+
+  answered.push({ question: q.text, chosen: index, correct: q.correct, options: q.options });
+  document.getElementById('score-text').textContent = `${score} corretas`;
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = current < questions.length - 1 ? 'Próxima questão →' : 'Ver resultado';
+  nextBtn.className = 'btn-next show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display   = 'none';
+  document.getElementById('result').style.display = 'block';
+
+  const total = questions.length;
+  const pct   = Math.round((score / total) * 100);
+
+  document.getElementById('final-score').textContent = `${score}/${total}`;
+
+  // Animate ring
+  const r = 57;
+  const circ = 2 * Math.PI * r;
+  const fill = document.getElementById('ring-fill');
+  fill.setAttribute('stroke-dasharray', circ);
+  fill.setAttribute('stroke-dashoffset', circ);
+  setTimeout(() => {
+    fill.setAttribute('stroke-dashoffset', circ - (circ * score / total));
+  }, 100);
+
+  let title, sub;
+  if (pct === 100) {
+    title = '🏆 Excelente!'; sub  = 'Você domina o conteúdo de Criptografia e Segurança de Dados.';
+  } else if (pct >= 70) {
+    title = '👍 Muito bem!'; sub  = 'Você tem um bom entendimento do tema. Revise as questões marcadas abaixo.';
+  } else if (pct >= 50) {
+    title = '📚 Bom começo!'; sub = 'Vale retomar o material e tentar novamente — você está no caminho certo!';
+  } else {
+    title = '💡 Continue estudando!'; sub = 'Leia o texto técnico novamente e tente o quiz mais uma vez.';
+  }
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-sub').textContent   = sub;
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  answered.forEach((a, i) => {
+    const ok = a.chosen === a.correct;
+    const item = document.createElement('div');
+    item.className = `review-item ${ok ? 'ok' : 'bad'}`;
+    item.innerHTML = `
+      <div class="ri-q">${i + 1}. ${a.question}</div>
+      <div class="ri-a">
+        ${ok
+          ? `✅ Sua resposta: <span>${letters[a.chosen]}) ${a.options[a.chosen]}</span>`
+          : `❌ Sua resposta: <span>${letters[a.chosen]}) ${a.options[a.chosen]}</span><br>
+             ✅ Correta: <span>${letters[a.correct]}) ${a.options[a.correct]}</span>`
+        }
+      </div>`;
+    reviewList.appendChild(item);
+  });
+}
+
+function restartQuiz() {
+  current  = 0;
+  score    = 0;
+  answered = [];
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display   = 'block';
+  renderQuestion();
+}
+</script>
+
+</body>
+</html>
