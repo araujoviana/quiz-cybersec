@@ -24,7 +24,7 @@ Aqui você encontra todos os materiais desenvolvidos para facilitar o aprendizad
 
 ### 📝 1. Texto Técnico
 O núcleo teórico da nossa pesquisa. Um documento formatado para leitura na web (escaneabilidade), focado em explicar a problemática dos vazamentos de dados, o funcionamento dos "cadeados virtuais" e as melhores práticas de defesa para o cidadão.
-*   🔗 **Acesse o documento completo aqui:** [INSERIR LINK PARA O TEXTO TÉCNICO .DOCX/.PDF]
+*   🔗 **Acesse o documento completo aqui:** [Criptografia - Extensao (1).pdf]
 
 ### 🎥 2. Vídeo Demonstrativo
 Uma síntese em vídeo, direta e visual, apresentando a importância de proteger nossos dados e como a criptografia atua nos bastidores.
