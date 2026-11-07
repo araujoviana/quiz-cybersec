@@ -3,12 +3,12 @@
 
 Autores:
 
-|Nome|RA|Curso|
-|---|---|---|
-|Thomaz de Souza Scopel|10417183|Ciência da Computação 7º Semestre|
-|Matheus Gabriel Viana Araujo|10420444|Ciência da Computação 6º Semestre|
-|Yating Zheng  |10439511|Ciência da Computação 5º Semestre|
-|João Silveira Campos Neto|10441670|Ciência de Dados 5º Semestre|
+|Nome|Curso|
+|---|---|
+|Thomaz de Souza Scopel|Ciência da Computação 7º Semestre|
+|Matheus Gabriel Viana Araujo|Ciência da Computação 6º Semestre|
+|Yating Zheng  |Ciência da Computação 5º Semestre|
+|João Silveira Campos Neto|Ciência de Dados 5º Semestre|
 
 ## 🛡️ Criptografia Cidadã - Protegendo sua Casa Digital
 
